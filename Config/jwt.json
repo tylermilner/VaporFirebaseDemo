@@ -1,0 +1,9 @@
+{
+    "signers": {
+        "googleOAuth": {
+            "type": "rsa",
+            "algorithm": "rs256",
+            "key": "$GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY"
+        }
+    }
+}
