@@ -22,10 +22,10 @@ extension Droplet {
                     let firestore = Firestore(accessToken: accessToken)
                     
                     // Firebase - Create a Firestore document object to represent the random number
-                    let documentConfig = FirestoreDocumentConfig(projectId: "vaporfirebasedemo",
-                                                                 databaseId: "(default)",
-                                                                 documentPath: "randomNumbers/theRandomNumber")
-                    let randomNumberDocument = NumberDocument(value: randomNumber, documentConfig: documentConfig)
+                    let randomNumberDocument = NumberDocument(value: randomNumber,
+                                                              projectId: "vaporfirebasedemo",
+                                                              databaseId: "(default)",
+                                                              documentPath: "randomNumbers/theRandomNumber")
                     
                     // Firebase - PATCH onto the resource name to insert or update the document
                     let firestoreResponse = try firestore.updateDocument(randomNumberDocument, using: self.client)

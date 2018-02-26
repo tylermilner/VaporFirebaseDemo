@@ -7,18 +7,17 @@
 
 import Foundation
 
-struct NumberDocument: FirestoreDocument {
+class NumberDocument: FirestoreDocument {
     
     // MARK: - Properties
     
     let value: Int
-    var documentConfig: FirestoreDocumentConfig
     
     // MARK: - Init
     
-    init(value: Int, documentConfig: FirestoreDocumentConfig) {
+    init(value: Int, projectId: String, databaseId: String, documentPath: String) {
         self.value = value
-        self.documentConfig = documentConfig
+        super.init(projectId: projectId, databaseId: databaseId, documentPath: documentPath)
     }
 }
 
