@@ -17,7 +17,7 @@ extension Droplet {
                     guard let accessToken: String = try authResponse.json?.get("access_token") else { return Response(status: .internalServerError, body: "Google auth response did not include an access token") }
                     
                     // Generate a new random number
-                    let randomNumber = arc4random_uniform(100) + 1 // Generates a random number between [1-100]
+                    let randomNumber = Int(arc4random_uniform(100) + 1) // Generates a random number between [1-100]
                     
                     let firestore = Firestore(accessToken: accessToken)
                     
@@ -25,7 +25,7 @@ extension Droplet {
                     let documentConfig = FirestoreDocumentConfig(projectId: "vaporfirebasedemo",
                                                                  databaseId: "(default)",
                                                                  documentPath: "randomNumbers/theRandomNumber")
-                    let randomNumberDocument = NumberDocument(value: Int(randomNumber), documentConfig: documentConfig)
+                    let randomNumberDocument = NumberDocument(value: randomNumber, documentConfig: documentConfig)
                     
                     // Firebase - PATCH onto the resource name to insert or update the document
                     let firestoreResponse = try firestore.updateDocument(randomNumberDocument, using: self.client)
