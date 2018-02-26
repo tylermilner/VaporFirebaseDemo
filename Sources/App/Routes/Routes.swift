@@ -19,27 +19,17 @@ extension Droplet {
                     // Generate a new random number
                     let randomNumber = arc4random_uniform(100) + 1 // Generates a random number between [1-100]
                     
-                    // Firebase - Build the Cloud Firestore resource name
-                    let firestoreDocument = FirestoreDocument(projectId: "vaporfirebasedemo",
-                                                              databaseId: "(default)",
-                                                              documentPath: "randomNumbers/theRandomNumber")
-                    
                     // Firebase - Create a Firestore document object to represent the random number
-                    var documentJSON = JSON()
-                    try documentJSON.set("name", "\(firestoreDocument.resourceName)")
-                    
-                    var numberValueJSON = JSON()
-                    try numberValueJSON.set("integerValue", randomNumber)
-                    
-                    var numberJSON = JSON()
-                    try numberJSON.set("number", numberValueJSON)
-                    
-                    try documentJSON.set("fields", numberJSON)
-                    
-                    let firestoreBaseURL = "https://firestore.googleapis.com/v1beta1"
-                    let firestoreDocumentURL = "\(firestoreBaseURL)/\(firestoreDocument.resourceName)"
+                    let documentConfig = FirestoreDocumentConfig(projectId: "vaporfirebasedemo",
+                                                                 databaseId: "(default)",
+                                                                 documentPath: "randomNumbers/theRandomNumber")
+                    let randomNumberDocument = NumberDocument(value: Int(randomNumber), documentConfig: documentConfig)
+                    let documentJSON = try randomNumberDocument.makeJSON()
                     
                     // Firebase - PATCH onto the resource name to insert or update the document
+                    let firestoreBaseURL = "https://firestore.googleapis.com/v1beta1"
+                    let firestoreDocumentURL = "\(firestoreBaseURL)/\(randomNumberDocument.resourceName)"
+                    
                     let firestoreResponse = try self.client.patch(firestoreDocumentURL, query: [:], [.authorization: "Bearer \(accessToken)"], documentJSON, through: [])
                     
                     switch firestoreResponse.status {
