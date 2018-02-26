@@ -13,6 +13,7 @@ struct GoogleOAuth {
     
     // MARK: - Properties
     
+    private let googleOAuthURL = "https://www.googleapis.com/oauth2/v4/token"
     private let jwtSigner: Signer
     private let serviceAccountEmail: String
     
@@ -29,8 +30,18 @@ struct GoogleOAuth {
     
     // MARK: - Public
     
-    func generateOAuthJWT() throws -> String {
+    func authenticateWithGoogle(using client: ClientFactoryProtocol) throws -> Response {
         let googleOAuthJWT = GoogleOAuthJWT(serviceAccountEmail: serviceAccountEmail)
-        return try googleOAuthJWT.generateJWT(using: jwtSigner)
+        
+        let oAuthParams = try generateOAuthRequestParams(for: googleOAuthJWT)
+        
+        return try client.post(googleOAuthURL, query: [:], [.contentType: "application/x-www-form-urlencoded"], oAuthParams, through: [])
+    }
+    
+    // MARK: - Private
+    
+    private func generateOAuthRequestParams(for jwt: GoogleOAuthJWT) throws -> String {
+        let jwtString = try jwt.generateJWT(using: jwtSigner)
+        return "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=\(jwtString)".urlQueryPercentEncoded
     }
 }

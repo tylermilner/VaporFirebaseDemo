@@ -8,14 +8,8 @@ extension Droplet {
         post("nextRandom") { request in
             do {
                 let googleOAuth = GoogleOAuth(jwtSignerName: "googleOAuth", serviceAccountEmail: "firebase-adminsdk-notoj@vaporfirebasedemo.iam.gserviceaccount.com", droplet: self)
-                let jwtString = try googleOAuth.generateOAuthJWT()
                 
-                // Google OAuth - Authenticate with Google using the created JWT
-                let oAuthParams = "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=\(jwtString)".urlQueryPercentEncoded
-                debugPrint("OAuth Params: \(oAuthParams)")
-                
-                let authResponse = try self.client.post("https://www.googleapis.com/oauth2/v4/token", query: [:], [.contentType: "application/x-www-form-urlencoded"], oAuthParams, through: [])
-                debugPrint("Google auth response: \(authResponse)")
+                let authResponse = try googleOAuth.authenticateWithGoogle(using: self.client)
                 
                 // Google OAuth - Handle the response from Google
                 switch authResponse.status {
