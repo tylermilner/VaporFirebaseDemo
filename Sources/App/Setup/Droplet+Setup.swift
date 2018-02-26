@@ -3,6 +3,8 @@
 extension Droplet {
     public func setup() throws {
         try setupRoutes()
-        // Do any additional droplet setup
+        
+        // Kick off the random number generation
+        RandomNumberJob.scheduleRandomNumberJob(using: self)
     }
 }
