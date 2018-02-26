@@ -12,11 +12,13 @@ class NumberDocument: FirestoreDocument {
     // MARK: - Properties
     
     let value: Int
+    let nextUpdate: Date
     
     // MARK: - Init
     
-    init(value: Int, projectId: String, databaseId: String, documentPath: String) {
+    init(value: Int, nextUpdate: Date, projectId: String, databaseId: String, documentPath: String) {
         self.value = value
+        self.nextUpdate = nextUpdate
         super.init(projectId: projectId, databaseId: databaseId, documentPath: documentPath)
     }
 }
@@ -30,8 +32,12 @@ extension NumberDocument: JSONRepresentable {
         var numberValueJSON = JSON()
         try numberValueJSON.set("integerValue", value)
         
+        var nextUpdateValueJSON = JSON()
+        try nextUpdateValueJSON.set("timestampValue", nextUpdate)
+        
         var numberJSON = JSON()
         try numberJSON.set("number", numberValueJSON)
+        try numberJSON.set("nextUpdate", nextUpdateValueJSON)
         
         try documentJSON.set("fields", numberJSON)
         

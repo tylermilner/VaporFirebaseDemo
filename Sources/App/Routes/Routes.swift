@@ -16,13 +16,15 @@ extension Droplet {
                 case .ok:
                     guard let accessToken: String = try authResponse.json?.get("access_token") else { return Response(status: .internalServerError, body: "Google auth response did not include an access token") }
                     
-                    // Generate a new random number
+                    // Generate a new random number and date for the next one to be generated
                     let randomNumber = Int(arc4random_uniform(100) + 1) // Generates a random number between [1-100]
+                    let nextUpdate = Date().addingTimeInterval(60) // Next update in 60 seconds
                     
                     let firestore = Firestore(accessToken: accessToken)
                     
                     // Firebase - Create a Firestore document object to represent the random number
                     let randomNumberDocument = NumberDocument(value: randomNumber,
+                                                              nextUpdate: nextUpdate,
                                                               projectId: "vaporfirebasedemo",
                                                               databaseId: "(default)",
                                                               documentPath: "randomNumbers/theRandomNumber")
