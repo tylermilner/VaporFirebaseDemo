@@ -7,16 +7,13 @@ extension Droplet {
         
         post("nextRandom") { request in
             do {
+                // Setup - Make sure a Signer exists so that we can use it to generate the Google OAuth JWT
+                let signerName = "googleOAuth"
+                guard let oAuthSigner = self.signers?[signerName] else { return Response(status: .internalServerError, body: "Unable to locate JWT signer. Make sure your 'Config/jwt.json' file contains a 'signers' object with a '\(signerName)' key. See Vapor documentation at https://docs.vapor.codes/2.0/jwt/overview/#custom-signers.") }
+                
+                // Google OAuth - Create the JWT from the service account email and signer
                 let googleOAuthJWT = GoogleOAuthJWT(serviceAccountEmail: "firebase-adminsdk-notoj@vaporfirebasedemo.iam.gserviceaccount.com")
-                let headersJSON = try googleOAuthJWT.generateHeaders()
-                let claimsJSON = try googleOAuthJWT.generateClaims()
-                
-                // Google OAuth - Create the JWT signature
-                guard let oAuthSigner = self.signers?["googleOAuth"] else { return Response(status: .internalServerError, body: "Unable to locate signer") }
-                
-                let accessTokenRequestJWT = try JWT(headers: headersJSON, payload: claimsJSON, signer: oAuthSigner)
-                let jwtString = try accessTokenRequestJWT.createToken()
-                debugPrint("Using JWT: \(jwtString)")
+                let jwtString = try googleOAuthJWT.generateJWT(for: oAuthSigner, in: self)
                 
                 // Google OAuth - Authenticate with Google using the created JWT
                 let oAuthParams = "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=\(jwtString)".urlQueryPercentEncoded

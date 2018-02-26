@@ -6,6 +6,7 @@
 //
 
 import Vapor
+import JWT
 import Foundation
 
 /// Represents the JWT used to authenticate with Google using their server-to-server OAuth 2.0 process.
@@ -23,14 +24,24 @@ struct GoogleOAuthJWT {
     
     // MARK: - Public
     
-    func generateHeaders() throws -> JSON {
+    func generateJWT(for signer: Signer, in droplet: Droplet) throws -> String {
+        let headers = try generateHeaders()
+        let claims = try generateClaims()
+        let jwt = try JWT(headers: headers, payload: claims, signer: signer)
+        
+        return try jwt.createToken()
+    }
+    
+    // MARK: - Private
+    
+    private func generateHeaders() throws -> JSON {
         var headersJSON = JSON()
         try headersJSON.set("alg", "RS256")
         try headersJSON.set("typ", "JWT")
         return headersJSON
     }
     
-    func generateClaims() throws -> JSON {
+    private func generateClaims() throws -> JSON {
         let issuedTime = Date()
         let timeToLive: TimeInterval = 60 * 30 // 30 minutes (max is 60)
         let expirationTime = issuedTime.addingTimeInterval(timeToLive)
