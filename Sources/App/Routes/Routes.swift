@@ -20,14 +20,13 @@ extension Droplet {
                     let randomNumber = arc4random_uniform(100) + 1 // Generates a random number between [1-100]
                     
                     // Firebase - Build the Cloud Firestore resource name
-                    let projectId = "vaporfirebasedemo"
-                    let databaseId = "(default)"
-                    let documentPath = "randomNumbers/theRandomNumber"
-                    let resourceName = "projects/\(projectId)/databases/\(databaseId)/documents/\(documentPath)"
+                    let firestoreDocument = FirestoreDocument(projectId: "vaporfirebasedemo",
+                                                              databaseId: "(default)",
+                                                              documentPath: "randomNumbers/theRandomNumber")
                     
                     // Firebase - Create a Firestore document object to represent the random number
                     var documentJSON = JSON()
-                    try documentJSON.set("name", "\(resourceName)") // The Firestore resource name of the document, for example projects/{projectId}/databases/{databaseId}/documents/{document_path}
+                    try documentJSON.set("name", "\(firestoreDocument.resourceName)")
                     
                     var numberValueJSON = JSON()
                     try numberValueJSON.set("integerValue", randomNumber)
@@ -38,7 +37,7 @@ extension Droplet {
                     try documentJSON.set("fields", numberJSON)
                     
                     let firestoreBaseURL = "https://firestore.googleapis.com/v1beta1"
-                    let firestoreDocumentURL = "\(firestoreBaseURL)/\(resourceName)"
+                    let firestoreDocumentURL = "\(firestoreBaseURL)/\(firestoreDocument.resourceName)"
                     
                     // Firebase - PATCH onto the resource name to insert or update the document
                     let firestoreResponse = try self.client.patch(firestoreDocumentURL, query: [:], [.authorization: "Bearer \(accessToken)"], documentJSON, through: [])
@@ -50,7 +49,7 @@ extension Droplet {
                         return Response(status: .internalServerError, body: "Error saving document to Firestore: \(firestoreResponse)")
                     }
                 default:
-                    return Response(status: .internalServerError, body: "Unexpected Google auth response: '\(authResponse.status)")
+                    return Response(status: .internalServerError, body: "Unexpected Google auth response: '\(authResponse)")
                 }
             } catch {
                 debugPrint("\(error)")
