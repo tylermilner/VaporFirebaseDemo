@@ -24,7 +24,7 @@ struct GoogleOAuthJWT {
     
     // MARK: - Public
     
-    func generateJWT(for signer: Signer, in droplet: Droplet) throws -> String {
+    func generateJWT(using signer: Signer) throws -> String {
         let headers = try generateHeaders()
         let claims = try generateClaims()
         let jwt = try JWT(headers: headers, payload: claims, signer: signer)
