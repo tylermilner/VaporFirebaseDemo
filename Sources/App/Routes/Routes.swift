@@ -30,9 +30,22 @@ extension Droplet {
                 let accessTokenRequestJWT = try JWT(headers: headersJSON, payload: claimsJSON, signer: oAuthSigner)
                 let jwtString = try accessTokenRequestJWT.createToken() // the final encoded JWT
                 
-                // ...
+                // Google OAuth - Authenticate with Google using the created JWT
+                let oAuthParams = "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=\(jwtString)".urlQueryPercentEncoded
                 
-                return Response(status: .methodNotAllowed)
+                let authResponse = try self.client.post("https://www.googleapis.com/oauth2/v4/token", query: [:], [.contentType: "application/x-www-form-urlencoded"], oAuthParams, through: [])
+                
+                // Google OAuth - Handle the response from Google
+                switch authResponse.status {
+                case .ok:
+                    guard let accessToken: String = try authResponse.json?.get("access_token") else { return Response(status: .internalServerError, body: "Google auth response did not include an access token") }
+                    
+                    // ...
+                    
+                    return Response(status: .methodNotAllowed)
+                default:
+                    return Response(status: .internalServerError, body: "Unexpected Google auth response: '\(authResponse.status)")
+                }
             } catch {
                 debugPrint("\(error)")
                 return Response(status: .internalServerError, body: "\(error)")
