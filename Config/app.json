@@ -1,3 +1,4 @@
 {
-	"foo": "foo-bar"
+	"googleServiceAccountEmail": "firebase-adminsdk-notoj@vaporfirebasedemo.iam.gserviceaccount.com",
+    "firebaseProjectId": "vaporfirebasedemo"
 }

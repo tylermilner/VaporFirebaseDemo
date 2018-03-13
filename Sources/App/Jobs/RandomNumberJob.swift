@@ -29,8 +29,15 @@ class RandomNumberJob {
     
     @discardableResult
     static func publishNewRandomNumber(using droplet: Droplet) -> Response {
+        guard let googleServiceAccountEmail = droplet.config["app", "googleServiceAccountEmail"]?.string else {
+            fatalError("Unable to locate Google Service Account email. Make sure it's setup in your 'Config/app.json' configuration file.")
+        }
+        guard let firebaseProjectId = droplet.config["app", "firebaseProjectId"]?.string else {
+            fatalError("Unable to locate Firebase project ID. Make sure it's setup in your 'Config/app.json' configuration file.")
+        }
+        
         do {
-            let googleOAuth = GoogleOAuth(jwtSignerName: "googleOAuth", serviceAccountEmail: "firebase-adminsdk-notoj@vaporfirebasedemo.iam.gserviceaccount.com", droplet: droplet)
+            let googleOAuth = GoogleOAuth(jwtSignerName: "googleOAuth", serviceAccountEmail: googleServiceAccountEmail, droplet: droplet)
             
             let authResponse = try googleOAuth.authenticateWithGoogle(using: droplet.client)
             
@@ -48,7 +55,7 @@ class RandomNumberJob {
                 // Firebase - Create a Firestore document object to represent the random number
                 let randomNumberDocument = NumberDocument(value: randomNumber,
                                                           nextUpdate: nextUpdate,
-                                                          projectId: "vaporfirebasedemo",
+                                                          projectId: firebaseProjectId,
                                                           databaseId: "(default)",
                                                           documentPath: "randomNumbers/theRandomNumber")
                 
